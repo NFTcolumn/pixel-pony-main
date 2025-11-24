@@ -2,8 +2,11 @@ services:
   - type: web
     name: pixel-pony-frontend
     runtime: static
-    buildCommand: npm install && npm run build
+    buildCommand: npm ci && npm run build
     staticPublishPath: ./dist
+    envVars:
+      - key: NODE_VERSION
+        value: 22.16.0
     headers:
       - path: /*
         name: Cache-Control
