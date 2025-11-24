@@ -1,29 +1,7 @@
 import { Link, Outlet } from 'react-router-dom'
-import { useAccount, useConnect, useDisconnect, useBalance, useReadContract } from 'wagmi'
-import { formatEther } from 'viem'
+import { useAccount, useConnect, useDisconnect } from 'wagmi'
 import { useState } from 'react'
 import './Layout.css'
-
-const PONY_TOKEN_ADDRESS = '0x6ab297799335E7b0f60d9e05439Df156cf694Ba7'
-
-const PONY_TOKEN_ABI = [
-  {
-    inputs: [{ name: 'owner', type: 'address' }],
-    name: 'balanceOf',
-    outputs: [{ name: '', type: 'uint256' }],
-    stateMutability: 'view',
-    type: 'function'
-  }
-] as const
-
-function formatPony(num: string): string {
-  const absNum = Math.abs(parseFloat(num))
-  if (absNum >= 1e12) return (absNum / 1e12).toFixed(1) + 'T'
-  if (absNum >= 1e9) return (absNum / 1e9).toFixed(1) + 'B'
-  if (absNum >= 1e6) return (absNum / 1e6).toFixed(1) + 'M'
-  if (absNum >= 1e3) return (absNum / 1e3).toFixed(1) + 'K'
-  return absNum.toFixed(2)
-}
 
 export default function Layout() {
   const { address, isConnected } = useAccount()
@@ -31,26 +9,6 @@ export default function Layout() {
   const { disconnect } = useDisconnect()
   const [showConnectors, setShowConnectors] = useState(false)
 
-  const { data: ethBalance } = useBalance({
-    address: address,
-    query: { enabled: !!address }
-  })
-
-  const { data: ponyBalance } = useReadContract({
-    address: PONY_TOKEN_ADDRESS,
-    abi: PONY_TOKEN_ABI,
-    functionName: 'balanceOf',
-    args: address ? [address] : undefined,
-    query: { enabled: !!address }
-  })
-
-  const ethBalanceDisplay = ethBalance
-    ? parseFloat(formatEther(ethBalance.value)).toFixed(4)
-    : '0.0000'
-
-  const ponyBalanceDisplay = ponyBalance
-    ? formatPony(formatEther(ponyBalance))
-    : '0'
 
   return (
     <div className="layout">
