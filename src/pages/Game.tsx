@@ -61,7 +61,7 @@ function formatPony(num: string): string {
 
 export default function Game() {
   const { address, isConnected } = useAccount()
-  const { writeContract, data: hash, isPending: isWritePending, reset: resetWrite } = useWriteContract()
+  const { writeContract, data: hash, isPending: isWritePending, error: writeError, reset: resetWrite } = useWriteContract()
   const { isSuccess: isConfirmed } = useWaitForTransactionReceipt({ hash })
   const publicClient = usePublicClient()
 
@@ -188,18 +188,21 @@ export default function Game() {
 
   const handleRace = async () => {
     if (selectedHorse === null || !selectedBet || !baseFee || isRacing) return
+
+    setStatusMessage('Sending race transaction...')
+    setIsRacing(true)
+    setRaceHash(null)
+    setShowTrack(true)
+
+    console.log('Racing with params:')
+    console.log('  - Horse ID:', selectedHorse)
+    console.log('  - Bet Amount:', selectedBet.toString(), 'wei')
+    console.log('  - Bet Amount (PONY):', formatEther(selectedBet))
+    console.log('  - Base Fee (value):', baseFee?.toString(), 'wei')
+    console.log('  - Base Fee (ETH):', baseFee ? formatEther(baseFee as bigint) : 'N/A')
+
     try {
-      setStatusMessage('Sending race transaction...')
-      setIsRacing(true)
-
-      console.log('Racing with params:')
-      console.log('  - Horse ID:', selectedHorse)
-      console.log('  - Bet Amount:', selectedBet.toString(), 'wei')
-      console.log('  - Bet Amount (PONY):', formatEther(selectedBet))
-      console.log('  - Base Fee (value):', baseFee?.toString(), 'wei')
-      console.log('  - Base Fee (ETH):', baseFee ? formatEther(baseFee as bigint) : 'N/A')
-
-      writeContract({
+      await writeContract({
         address: PIXEL_PONY_ADDRESS,
         abi: PIXEL_PONY_ABI,
         functionName: 'placeBetAndRace',
@@ -208,17 +211,46 @@ export default function Game() {
       })
     } catch (error) {
       console.error('Race error:', error)
-      setStatusMessage('Race failed')
+      setStatusMessage('Transaction rejected or failed')
       setShowTrack(false)
       setIsRacing(false)
     }
   }
+
+  // Track race transaction hash
+  useEffect(() => {
+    if (hash && isRacing && !raceHash) {
+      console.log('Tracking race hash:', hash)
+      setRaceHash(hash)
+      setStatusMessage('Race transaction sent! Waiting for results...')
+    }
+  }, [hash, isRacing, raceHash])
+
+  // Handle write errors
+  useEffect(() => {
+    if (writeError) {
+      console.error('Transaction error:', writeError)
+      const errorMessage = writeError.message || 'Transaction failed'
+      setStatusMessage(`Error: ${errorMessage.substring(0, 100)}`)
+      setIsRacing(false)
+      setShowTrack(false)
+
+      // Reset after showing error
+      setTimeout(() => {
+        resetWrite()
+        if (selectedHorse !== null && selectedBet !== null) {
+          updateStatus()
+        }
+      }, 5000)
+    }
+  }, [writeError, resetWrite, selectedHorse, selectedBet])
 
   // Track approval transaction
   useEffect(() => {
     if (hash && !isRacing && !isApproved && !approvalHash) {
       console.log('Tracking approval hash:', hash)
       setApprovalHash(hash)
+      setStatusMessage('Approval transaction sent! Waiting for confirmation...')
     }
   }, [hash, isRacing, isApproved, approvalHash])
 
