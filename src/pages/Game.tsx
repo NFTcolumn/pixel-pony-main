@@ -225,7 +225,7 @@ export default function Game() {
     setStatusMessage('Sending race transaction...')
     setIsRacing(true)
     setRaceHash(null)
-    setShowTrack(true)
+    // Don't show track yet - wait for transaction confirmation
 
     console.log('Racing with params:')
     console.log('  - Horse ID:', selectedHorse)
