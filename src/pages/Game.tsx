@@ -287,33 +287,38 @@ export default function Game() {
     }
   }, [hash, isRacing, isApproved, approvalHash])
 
-  // Handle approval confirmation
+  // Handle approval confirmation with more aggressive polling for mobile
   useEffect(() => {
     if (!approvalHash || !isConfirmed || approvalHash !== hash) return
 
     console.log('Approval confirmed! Refetching allowance...')
-    setStatusMessage('Waiting for approval to update...')
+    setStatusMessage('Approval confirmed! Checking allowance...')
 
     const checkAllowance = async () => {
-      for (let i = 0; i < 15; i++) {
-        await new Promise(resolve => setTimeout(resolve, 800))
-        setStatusMessage(`Checking approval... (${i + 1}/15)`)
+      // More aggressive polling: 25 attempts with shorter delays
+      for (let i = 0; i < 25; i++) {
+        await new Promise(resolve => setTimeout(resolve, 500))
+        setStatusMessage(`Verifying approval... (${i + 1}/25)`)
         const result = await refetchAllowance()
-        console.log(`Checking allowance... attempt ${i + 1}/15, result:`, result.data?.toString())
+        console.log(`Checking allowance... attempt ${i + 1}/25, result:`, result.data?.toString())
         if (result.data && selectedBet && result.data >= selectedBet) {
-          console.log('Allowance updated!')
-          setStatusMessage('Approved! Now click STEP 2: RACE!')
+          console.log('Allowance detected! Ready to race!')
+          setStatusMessage('✅ Approved! Now click STEP 2: RACE!')
           setApprovalHash(null)
+          resetWrite() // Clear the transaction state
           return
         }
       }
-      console.log('Approval polling timed out')
-      setStatusMessage('Approval confirmed but not detected. Click STEP 2 to try racing.')
+      console.log('Approval polling completed but not detected yet')
+      setStatusMessage('Approval on-chain. Refresh page or try STEP 2 now.')
       setApprovalHash(null)
+      resetWrite()
+      // Force a final refetch
+      refetchAllowance()
     }
 
     checkAllowance()
-  }, [approvalHash, isConfirmed, hash, refetchAllowance, selectedBet])
+  }, [approvalHash, isConfirmed, hash, refetchAllowance, selectedBet, resetWrite])
 
   // Handle race transaction confirmation and fetch results
   useEffect(() => {
@@ -626,6 +631,32 @@ export default function Game() {
       >
         {isApproved ? 'APPROVED!' : 'STEP 1: APPROVE PONY'}
       </button>
+
+      {/* Manual Approval Check Button - shows after approval transaction */}
+      {approvalHash && !isApproved && (
+        <button
+          className="race-btn"
+          onClick={async () => {
+            setStatusMessage('Manually checking approval...')
+            const result = await refetchAllowance()
+            if (result.data && selectedBet && result.data >= selectedBet) {
+              setStatusMessage('✅ Approval found! Click STEP 2: RACE!')
+              setApprovalHash(null)
+            } else {
+              setStatusMessage('Not approved yet. Wait a moment and try again.')
+            }
+          }}
+          style={{
+            background: '#ffa500',
+            borderColor: '#ff8c00',
+            opacity: 1,
+            touchAction: 'manipulation'
+          }}
+        >
+          🔄 CHECK APPROVAL STATUS
+        </button>
+      )}
+
       <button
         className="race-btn"
         onClick={(e) => {
