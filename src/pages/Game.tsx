@@ -337,6 +337,8 @@ export default function Game() {
           setStatusMessage('✅ Approved! Now click STEP 2: RACE!')
           setApprovalHash(null)
           resetWrite() // Clear the transaction state
+          // Force one more refetch after small delay to ensure hook updates
+          setTimeout(() => refetchAllowance(), 100)
           return
         }
       }
