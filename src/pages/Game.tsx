@@ -242,7 +242,7 @@ export default function Game() {
       }
     }
 
-    setStatusMessage('Sending race transaction...')
+    setStatusMessage('Estimating gas...')
     setIsRacing(true)
     setRaceHash(null)
 
@@ -255,13 +255,30 @@ export default function Game() {
     console.log('  - User ETH Balance:', ethBalanceData ? formatEther(ethBalanceData.value) : 'unknown')
 
     try {
+      // Estimate gas for the transaction
+      const estimatedGas = await publicClient.estimateContractGas({
+        address: PIXEL_PONY_ADDRESS,
+        abi: PIXEL_PONY_ABI,
+        functionName: 'placeBetAndRace',
+        args: [BigInt(selectedHorse), selectedBet],
+        value: baseFee as bigint,
+        account: address
+      })
+
+      // Add 50% buffer for reentrancy guard overhead
+      const gasWithBuffer = (estimatedGas * 150n) / 100n
+      console.log('  - Estimated gas:', estimatedGas.toString())
+      console.log('  - Gas with 50% buffer:', gasWithBuffer.toString())
+
+      setStatusMessage('Sending race transaction...')
+
       await writeContract({
         address: PIXEL_PONY_ADDRESS,
         abi: PIXEL_PONY_ABI,
         functionName: 'placeBetAndRace',
         args: [BigInt(selectedHorse), selectedBet],
-        value: baseFee as bigint
-        // Let wagmi auto-estimate gas - it's more reliable
+        value: baseFee as bigint,
+        gas: gasWithBuffer
       })
     } catch (error) {
       console.error('Race error:', error)
