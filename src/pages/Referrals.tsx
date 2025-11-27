@@ -272,9 +272,9 @@ export default function Referrals() {
 
   // Parse tier info
   const currentTier = tierInfoData && Array.isArray(tierInfoData) ? Number(tierInfoData[0]) : 0
-  const currentCommissionBP = tierInfoData && Array.isArray(tierInfoData) ? Number(tierInfoData[1]) : 500
+  // const currentCommissionBP = tierInfoData && Array.isArray(tierInfoData) ? Number(tierInfoData[1]) : 500
   const racesUntilNextTier = tierInfoData && Array.isArray(tierInfoData) ? Number(tierInfoData[2]) : 0
-  const nextCommissionBP = tierInfoData && Array.isArray(tierInfoData) ? Number(tierInfoData[3]) : 1000
+  // const nextCommissionBP = tierInfoData && Array.isArray(tierInfoData) ? Number(tierInfoData[3]) : 1000
 
   // Parse commission rate
   const commissionPercentage = commissionRateData && Array.isArray(commissionRateData)
