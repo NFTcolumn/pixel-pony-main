@@ -86,7 +86,7 @@ export default function Layout() {
           <div className="footer-section">
             <h4>Social</h4>
             <div className="social-links">
-              <a href="https://twitter.com/pixelponies" target="_blank" rel="noopener noreferrer">Twitter</a>
+              <a href="https://x.com/pxponies" target="_blank" rel="noopener noreferrer">Twitter</a>
               <a href="https://t.me/pixelponies" target="_blank" rel="noopener noreferrer">Telegram</a>
             </div>
           </div>
