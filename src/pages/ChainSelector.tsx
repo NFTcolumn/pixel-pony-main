@@ -16,6 +16,14 @@ export default function ChainSelector() {
           <a href="https://bnb.pxpony.com" className="chain-button bnb-button">
             BNB Chain
           </a>
+
+          <a href="https://polygon.pxpony.com" className="chain-button polygon-button">
+            Polygon
+          </a>
+
+          <a href="https://celo.pxpony.com" className="chain-button celo-button">
+            Celo
+          </a>
         </div>
       </div>
     </div>

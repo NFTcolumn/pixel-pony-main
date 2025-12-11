@@ -78,6 +78,34 @@
     box-shadow: 0 8px 16px rgba(243, 186, 47, 0.3);
 }
 
+.polygon-button {
+    background: #8247E5;
+    color: #ffffff;
+    border-color: #6B38C0;
+}
+
+.polygon-button:hover {
+    background: #ffffff;
+    color: #8247E5;
+    text-decoration: underline;
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(130, 71, 229, 0.3);
+}
+
+.celo-button {
+    background: #FCFF52;
+    color: #000000;
+    border-color: #e3e649;
+}
+
+.celo-button:hover {
+    background: #ffffff;
+    color: #FCFF52;
+    text-decoration: underline;
+    transform: scale(1.05);
+    box-shadow: 0 8px 16px rgba(252, 255, 82, 0.3);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .chain-logo {
